@@ -2,17 +2,16 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 
+from pdf_gen import PDFGen
 from gi.repository import Gtk
 from data_model import DataModel
-from pdf_gen import PDFGen
 from data_manager import DataManager
 
 class MainWindow(Gtk.Window):
-
     def __init__(self):
-        Gtk.Window.__init__(self, title="Gerar Livro de Ponto")
+        Gtk.Window.__init__(self, title="Gerador de Folha de Pontos")
 
-        self.set_border_width(10)
+        self.set_border_width(15)
         self.set_resizable(False)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.data_model = DataModel()
@@ -32,23 +31,24 @@ class MainWindow(Gtk.Window):
         vbox.pack_start(day1_box, True, True, 0)
         vbox.pack_start(button_box, True, True, 0)
 
-        label_name = Gtk.Label("Nome: ")
+        label_name = Gtk.Label("Nome do servidor: ")
         name_box.pack_start(label_name, False, False, True)
 
-
         self.name_entry = Gtk.Entry()
-        name_box.pack_start(self.name_entry, False, False, True)
+        self.name_entry.set_text("Insira um nome...")
+        name_box.pack_start(self.name_entry, True, True, 0)
 
-
-        label_month = Gtk.Label("Mês: ")
+        label_month = Gtk.Label("Mês da folha: ")
         month_box.pack_start(label_month, False, False, True)
-
 
         month_combo = Gtk.ComboBoxText()
         month_combo.connect("changed", self.on_month_combo_changed)
         month_combo.set_entry_text_column(0)
-        for month in range(1, 13, 1):
-            month_combo.append_text(str(month))
+        
+        mesesAno = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+
+        for month in range(1, 14, 1):
+            month_combo.append_text(str(mesesAno[month-1]))
 
         month_box.pack_start(month_combo, False, False, True)
 
@@ -60,30 +60,24 @@ class MainWindow(Gtk.Window):
         self.check_leapyear.set_sensitive(False)
         leapyear_box.pack_start(self.check_leapyear, False, False, True)
 
-
-        label_day1 = Gtk.Label("Dia 1 será: ")
+        label_day1 = Gtk.Label("O primeiro dia do mês será numa: ")
         day1_box.pack_start(label_day1, False, False, 0)
 
-
-        days = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
+        days = ["", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
         day1_combo = Gtk.ComboBoxText()
         day1_combo.connect("changed", self.on_day1_combo_changed)
         day1_combo.set_entry_text_column(0)
+        
         for day in days:
             day1_combo.append_text(day)
 
         day1_box.pack_start(day1_combo, False, False, 0)
 
-
-
-        button = Gtk.Button.new_with_label("Gerar pdf")
+        button = Gtk.Button.new_with_label("Gerar Folha de Pontos")
         button.connect("clicked", self.create_pdf)
         button_box.pack_start(button, True, True, 0)
 
         self.add(vbox)
-
-
-
 
     def on_month_combo_changed(self, combo):
         self.month = combo.get_active()
@@ -95,11 +89,8 @@ class MainWindow(Gtk.Window):
             self.check_leapyear.set_sensitive(False)
             self.label_leapyear.set_sensitive(False)
 
-
-
     def on_day1_combo_changed(self, combo):
         self.day1 = combo.get_active()
-
 
     def create_pdf(self, button):
         self.data_model.name = self.name_entry.get_text().strip()
@@ -108,39 +99,29 @@ class MainWindow(Gtk.Window):
         self.data_model.day1 = self.day1
 
         if(self.validate()):
-
             data_manager = DataManager()
 
             doc = PDFGen()
             doc.create_new_document(31, 6, 2, data_manager.get_names())
             doc.build()
 
-            win = MessageDialogWindow("PDF Gerado")
+            win = MessageDialogWindow("Folha de Pontos Gerada!")
             win.connect("destroy", Gtk.main_quit)
             win.show_all()
             Gtk.main()
-
         else:
-
-            win = MessageDialogWindow("Dados inválidos")
+            win = MessageDialogWindow("Dados Inválidos! Tente Novamente.")
             win.connect("destroy", Gtk.main_quit)
             win.show_all()
             Gtk.main()
-
-
-
-
 
     def validate(self):
-        if (self.data_model.name):
+        if (self.data_model.name and self.data_model.month and self.data_model.day1):
             return True
         else:
             return False
 
-
-
 class MessageDialogWindow(Gtk.Window):
-
     def __init__(self, text):
         Gtk.Window.__init__(self, title="Aviso")
 
