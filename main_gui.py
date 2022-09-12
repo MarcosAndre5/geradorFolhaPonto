@@ -10,6 +10,7 @@ from data_manager import DataManager
 class MainWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Gerador de Folha de Pontos")
+        self.set_icon_from_file('iconeGFP.png')
 
         self.set_border_width(15)
         self.set_resizable(False)
@@ -47,8 +48,8 @@ class MainWindow(Gtk.Window):
         
         mesesAno = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
 
-        for month in range(1, 14, 1):
-            month_combo.append_text(str(mesesAno[month-1]))
+        for month in range(1, 13, 1):
+            month_combo.append_text(str(month))
 
         month_box.pack_start(month_combo, False, False, True)
 
@@ -63,7 +64,7 @@ class MainWindow(Gtk.Window):
         label_day1 = Gtk.Label("O primeiro dia do mês será numa: ")
         day1_box.pack_start(label_day1, False, False, 0)
 
-        days = ["", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
+        days = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
         day1_combo = Gtk.ComboBoxText()
         day1_combo.connect("changed", self.on_day1_combo_changed)
         day1_combo.set_entry_text_column(0)
@@ -116,10 +117,11 @@ class MainWindow(Gtk.Window):
             Gtk.main()
 
     def validate(self):
-        if (self.data_model.name and self.data_model.month and self.data_model.day1):
+        '''if (self.data_model.name != "Insira um nome..." and self.data_model.name and self.data_model.month and self.data_model.day1):
             return True
         else:
-            return False
+            return False'''
+        return True
 
 class MessageDialogWindow(Gtk.Window):
     def __init__(self, text):
