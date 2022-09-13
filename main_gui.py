@@ -46,9 +46,9 @@ class MainWindow(Gtk.Window):
         month_combo.connect("changed", self.on_month_combo_changed)
         month_combo.set_entry_text_column(0)
         
-        mesesAno = ["", "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+        mesesAno = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
 
-        for month in range(1, 13, 1):
+        for month in mesesAno:
             month_combo.append_text(str(month))
 
         month_box.pack_start(month_combo, False, False, True)
@@ -94,8 +94,8 @@ class MainWindow(Gtk.Window):
         self.day1 = combo.get_active()
 
     def create_pdf(self, button):
-        self.data_model.name = self.name_entry.get_text().strip()
-        self.data_model.month = self.month
+        self.data_model.name = self.name_entry.get_text().strip().upper()
+        self.data_model.month = self.month + 1
         self.data_model.is_leapyear = self.check_leapyear.get_active()
         self.data_model.day1 = self.day1
 
@@ -103,7 +103,8 @@ class MainWindow(Gtk.Window):
             data_manager = DataManager()
 
             doc = PDFGen()
-            doc.create_new_document(31, 6, 2, data_manager.get_names())
+            #doc.create_new_document(31, 6, 2, data_manager.get_names())
+            doc.create_new_document(31, self.data_model.month, self.day1, self.data_model.name)
             doc.build()
 
             win = MessageDialogWindow("Folha de Pontos Gerada!")
