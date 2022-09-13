@@ -5,31 +5,31 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, PageBreak
 class PDFGen:
     elements = []
 
-    def create_new_document(self, rows, month, day1, data):
+    def create_new_document(self, rows, month, day1, name):
         self.doc = SimpleDocTemplate("Folha_de_Pontos.pdf", pagesize=A4, rightMargin=0, leftMargin=0, topMargin=0, bottomMargin=0)
 
         # how much for saturday, assuming (0 - monday, 6 - sunday)
         diff = (6 - day1)
 
-        for name in data:
-            data_table = self.make_table(name, rows, month, diff)
+        #for name in data:
+        data_table = self.make_table(name, rows, month, diff)
 
-            t = Table(data_table, 11 * [0.65 * inch], (rows + 1) * [0.35 * inch])
-            t.setStyle(TableStyle(self.get_table_style(rows, diff)))
+        t = Table(data_table, 11 * [0.65 * inch], (rows + 1) * [0.35 * inch])
+        t.setStyle(TableStyle(self.get_table_style(rows, diff)))
 
-            self.elements.append(t)
-            self.elements.append(PageBreak())
+        self.elements.append(t)
+        self.elements.append(PageBreak())
 
     def make_table(self, name, rows, month, diff):
         data_table = [[name]]
 
         for i in range(1, rows + 1, 1):
             if (i % 7 == diff):
-                data_table.append(["{:02d}".format(i) + '-' + "{:02d}".format(month), ':', 'SÁBADO', '', '', ':', ':', 'SÁBADO', '', '', ':'])
+                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(month), ':', 'SÁBADO', '', '', ':', ':', '', '', '', ':'])
             elif (i % 7 == diff + 1):
-                data_table.append(["{:02d}".format(i) + '-' + "{:02d}".format(month), ':', 'DOMINGO', '', '', ':', ':', 'DOMINGO', '', '', ':'])
+                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(month), ':', 'DOMINGO', '', '', ':', ':', '', '', '', ':'])
             else:
-                data_table.append(["{:02d}".format(i) + '-' + "{:02d}".format(month), ':', '', '', '', ':', ':', '', '', '', ':'])
+                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(month), ':', '', '', '', ':', ':', '', '', '', ':'])
 
         return data_table
 
@@ -46,7 +46,8 @@ class PDFGen:
 
         # células grandes para nomes
         for i in range(1, rows+1, 1):
-            table_style.append(('SPAN', (2, i), (4, i)))
+            #table_style.append(('SPAN', (2, i), (4, i)))
+            table_style.append(('SPAN', (2, i), (9, i)))
             table_style.append(('SPAN', (7, i), (9, i)))
 
         # Mudandça de cor para as linhas de sábados de domingos
