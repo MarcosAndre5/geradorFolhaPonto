@@ -5,54 +5,53 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, PageBreak
 class PDFGen:
     elements = []
 
-    def create_new_document(self, rows, month, day1, name):
+    def create_new_document(self, linhas, mes, primeiroDiaMes, nomesAquivo):
         self.doc = SimpleDocTemplate("Folha_de_Pontos.pdf", pagesize=A4, rightMargin=0, leftMargin=0, topMargin=0, bottomMargin=0)
 
-        # how much for saturday, assuming (0 - monday, 6 - sunday)
-        diff = (6 - day1)
+        # Quanto no sábado, supondo (0 - segunda, 6 - domingo)
+        diferencaDias = (7 - primeiroDiaMes)
 
-        #for name in data:
-        data_table = self.make_table(name, rows, month, diff)
+        for name in nomesAquivo:
+            data_table = self.make_table(name, linhas, mes, diferencaDias)
 
-        t = Table(data_table, 11 * [0.65 * inch], (rows + 1) * [0.35 * inch])
-        t.setStyle(TableStyle(self.get_table_style(rows, diff)))
+            t = Table(data_table, 11 * [0.65 * inch], (linhas + 1) * [0.35 * inch])
+            t.setStyle(TableStyle(self.get_table_style(linhas, diferencaDias)))
+            
+            self.elements.append(t)
+            self.elements.append(PageBreak())
 
-        self.elements.append(t)
-        self.elements.append(PageBreak())
-
-    def make_table(self, name, rows, month, diff):
+    def make_table(self, name, linhas, mes, diferencaDias):
         data_table = [[name]]
 
-        for i in range(1, rows + 1, 1):
-            if (i % 7 == diff):
-                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(month), ':', 'SÁBADO', '', '', ':', ':', '', '', '', ':'])
-            elif (i % 7 == diff + 1):
-                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(month), ':', 'DOMINGO', '', '', ':', ':', '', '', '', ':'])
+        for i in range(1, linhas + 1, 1):
+            if (i % 7 == diferencaDias):
+                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', 'SÁBADO', '', '', ':', ':', '', '', '', ':'])
+            elif (i % 7 == diferencaDias + 1):
+                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', 'DOMINGO', '', '', ':', ':', '', '', '', ':'])
             else:
-                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(month), ':', '', '', '', ':', ':', '', '', '', ':'])
+                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', '', '', '', ':', ':', '', '', '', ':'])
 
         return data_table
 
-    def get_table_style(self, rows, diff):
+    def get_table_style(self, linhas, diferencaDias):
         table_style = [
-            ('ALIGN', (0, 0), (10, rows), 'CENTER'),
-            ('VALIGN', (0, 0), (10, rows), 'MIDDLE'),
-            ('BOX', (0, 0), (10, rows), 0.25, colors.black),
-            ('INNERGRID', (0, 0), (10, rows), 0.25, colors.black),
+            ('ALIGN', (0, 0), (10, linhas), 'CENTER'),
+            ('VALIGN', (0, 0), (10, linhas), 'MIDDLE'),
+            ('BOX', (0, 0), (10, linhas), 0.25, colors.black),
+            ('INNERGRID', (0, 0), (10, linhas), 0.25, colors.black),
             ('SPAN', (0, 0), (10, 0)),
             ('SPAN', (2, 1), (4, 1)),
             ('SPAN', (7, 1), (9, 1))
         ]
 
         # células grandes para nomes
-        for i in range(1, rows+1, 1):
-            #table_style.append(('SPAN', (2, i), (4, i)))
+        for i in range(1, linhas + 1, 1):
             table_style.append(('SPAN', (2, i), (9, i)))
             table_style.append(('SPAN', (7, i), (9, i)))
 
         # Mudandça de cor para as linhas de sábados de domingos
-        for i in range(1, rows + 1, 1):
-            if (i % 7 == diff  or i % 7 == diff + 1):
+        for i in range(1, linhas + 1, 1):
+            if (i % 7 == diferencaDias  or i % 7 == diferencaDias + 1):
                 table_style.append(('BACKGROUND', (0, i), (11, i), colors.gray))
 
         return table_style
