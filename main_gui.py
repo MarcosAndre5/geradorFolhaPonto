@@ -71,7 +71,7 @@ class MainWindow(Gtk.Window):
             "Segunda-feira", "Terça-feira", "Quarta-feira",
             "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"
         ]
-        
+
         day1_combo = Gtk.ComboBoxText()
         day1_combo.connect("changed", self.on_day1_combo_changed)
         day1_combo.set_entry_text_column(0)
@@ -104,7 +104,7 @@ class MainWindow(Gtk.Window):
         self.data_model.name = self.name_entry.get_text().strip()
         self.data_model.month = self.month + 1
         self.data_model.is_leapyear = self.check_leapyear.get_active()
-        self.data_model.day1 = self.day1
+        self.data_model.day1 = self.day1 + 1
 
         if(self.validate()):
             data_manager = DataManager()
@@ -124,6 +124,8 @@ class MainWindow(Gtk.Window):
             Gtk.main()
 
     def validate(self):
+        print (self.data_model.month)
+        print (self.data_model.day1)
         if(self.data_model.month and self.data_model.day1):
             return True
         else:

@@ -9,7 +9,7 @@ class PDFGen:
         self.doc = SimpleDocTemplate("Folha_de_Pontos.pdf", pagesize=A4, rightMargin=0, leftMargin=0, topMargin=0, bottomMargin=0)
 
         # Quanto no sábado, supondo (0 - segunda, 6 - domingo)
-        diferencaDias = (6 - primeiroDiaMes)
+        diferencaDias = (7 - primeiroDiaMes)
 
         for name in nomesAquivo:
             data_table = self.make_table(name, linhas, mes, diferencaDias)
