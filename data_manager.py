@@ -4,4 +4,4 @@ class DataManager:
     def get_names(self):
         file = pd.read_csv("nomes.csv")
 
-        return file['Nome'].tolist()
+        return file['Nomes:'].tolist()
