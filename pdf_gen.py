@@ -12,21 +12,23 @@ class PDFGen:
         diferencaDias = (7 - primeiroDiaMes)
 
         for name in nomesAquivo:
-            data_table = self.make_table(name, linhas, mes, diferencaDias)
+            data_table = self.make_table(name.upper(), linhas, mes, diferencaDias)
 
-            t = Table(data_table, 11 * [0.65 * inch], (linhas + 1) * [0.35 * inch])
-            t.setStyle(TableStyle(self.get_table_style(linhas, diferencaDias)))
+            t = Table(data_table, 11 * [0.65 * inch], (linhas + 2) * [0.34 * inch])
+            t.setStyle(TableStyle(self.get_table_style(linhas + 1, diferencaDias)))
             
             self.elements.append(t)
             self.elements.append(PageBreak())
 
     def make_table(self, name, linhas, mes, diferencaDias):
         data_table = [[name]]
-
-        for i in range(1, linhas + 1, 1):
-            if (i % 7 == diferencaDias):
+        
+        for i in range(0, linhas + 1, 1):
+            if (i == 0):
+                data_table.append(['DATA', '  ENTRADA  ', 'ASSINATURA', '', '', '', '', '', '', '', 'SAÍDA'])
+            elif (i % 8 == diferencaDias):
                 data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', 'SÁBADO', '', '', ':', ':', '', '', '', ':'])
-            elif (i % 7 == diferencaDias + 1):
+            elif (i % 8 == diferencaDias + 1):
                 data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', 'DOMINGO', '', '', ':', ':', '', '', '', ':'])
             else:
                 data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', '', '', '', ':', ':', '', '', '', ':'])
@@ -45,13 +47,13 @@ class PDFGen:
         ]
 
         # células grandes para nomes
-        for i in range(1, linhas + 1, 1):
+        for i in range(0, linhas + 1, 1):
             table_style.append(('SPAN', (2, i), (9, i)))
             table_style.append(('SPAN', (7, i), (9, i)))
 
         # Mudandça de cor para as linhas de sábados de domingos
-        for i in range(1, linhas + 1, 1):
-            if (i % 7 == diferencaDias  or i % 7 == diferencaDias + 1):
+        for i in range(0, linhas + 1, 1):
+            if (i % 8 == diferencaDias + 1  or i % 8 == diferencaDias + 2):
                 table_style.append(('BACKGROUND', (0, i), (11, i), colors.gray))
 
         return table_style

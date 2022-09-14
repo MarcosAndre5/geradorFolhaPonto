@@ -124,8 +124,6 @@ class MainWindow(Gtk.Window):
             Gtk.main()
 
     def validate(self):
-        print (self.data_model.month)
-        print (self.data_model.day1)
         if(self.data_model.month and self.data_model.day1):
             return True
         else:
