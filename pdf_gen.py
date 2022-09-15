@@ -22,13 +22,13 @@ class PDFGen:
 
     def make_table(self, name, linhas, mes, diferencaDias):
         data_table = [[name]]
+
+        data_table.append(['DATA', 'ENTRADA', 'ASSINATURA', '', '', '', '', '', '', '', 'SAÍDA'])
         
-        for i in range(0, linhas + 1, 1):
-            if (i == 0):
-                data_table.append(['DATA', '  ENTRADA  ', 'ASSINATURA', '', '', '', '', '', '', '', 'SAÍDA'])
-            elif (i % 8 == diferencaDias):
+        for i in range(1, linhas + 1, 1):
+            if (i % 7 == diferencaDias):
                 data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', 'SÁBADO', '', '', ':', ':', '', '', '', ':'])
-            elif (i % 8 == diferencaDias + 1):
+            elif (i % 7 == diferencaDias + 1):
                 data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', 'DOMINGO', '', '', ':', ':', '', '', '', ':'])
             else:
                 data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', '', '', '', ':', ':', '', '', '', ':'])
@@ -47,13 +47,13 @@ class PDFGen:
         ]
 
         # células grandes para nomes
-        for i in range(0, linhas + 1, 1):
+        for i in range(1, linhas + 1, 1):
             table_style.append(('SPAN', (2, i), (9, i)))
             table_style.append(('SPAN', (7, i), (9, i)))
 
         # Mudandça de cor para as linhas de sábados de domingos
-        for i in range(0, linhas + 1, 1):
-            if (i % 8 == diferencaDias + 1  or i % 8 == diferencaDias + 2):
+        for i in range(1, linhas + 1, 1):
+            if (i % 7 == diferencaDias + 1 or i % 7 == diferencaDias + 2):
                 table_style.append(('BACKGROUND', (0, i), (11, i), colors.gray))
 
         return table_style
