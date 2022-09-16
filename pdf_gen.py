@@ -9,29 +9,29 @@ class PDFGen:
         self.doc = SimpleDocTemplate("Folha_de_Pontos.pdf", pagesize=A4, rightMargin=0, leftMargin=0, topMargin=0, bottomMargin=0)
 
         # Quanto no sábado, supondo (0 - segunda, 6 - domingo)
-        diferencaDias = (7 - primeiroDiaMes)
-
+        diferencaDias = (6 - primeiroDiaMes)
+        
         for name in nomesAquivo:
-            data_table = self.make_table(name.upper(), linhas, mes, diferencaDias)
+            data_table = self.make_table(name, linhas, mes+1, diferencaDias)
 
-            t = Table(data_table, 11 * [0.65 * inch], (linhas + 2) * [0.34 * inch])
-            t.setStyle(TableStyle(self.get_table_style(linhas + 1, diferencaDias)))
+            t = Table(data_table, 11 * [0.65 * inch], (linhas + 1) * [0.34 * inch])
+            t.setStyle(TableStyle(self.get_table_style(linhas, diferencaDias)))
             
             self.elements.append(t)
             self.elements.append(PageBreak())
 
     def make_table(self, name, linhas, mes, diferencaDias):
-        data_table = [[name]]
+        data_table = [[name.upper()]]
 
-        data_table.append(['DATA', 'ENTRADA', 'ASSINATURA', '', '', '', '', '', '', '', 'SAÍDA'])
+        #data_table.append(['DATA', 'ENTRADA', 'ASSINATURA', '', '', '', '', '', '', '', 'SAÍDA'])
         
         for i in range(1, linhas + 1, 1):
             if (i % 7 == diferencaDias):
-                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', 'SÁBADO', '', '', ':', ':', '', '', '', ':'])
-            elif (i % 7 == diferencaDias + 1):
-                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', 'DOMINGO', '', '', ':', ':', '', '', '', ':'])
+                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', 'SÁBADO', '', '', '', '', '', '', '', ':'])
+            elif (i % 7 == diferencaDias+1 or i-1 % 7 == diferencaDias):
+                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', 'DOMINGO', '', '', '', '', '', '', '', ':'])
             else:
-                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', '', '', '', ':', ':', '', '', '', ':'])
+                data_table.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', '', '', '', '', '', '', '', '', ':'])
 
         return data_table
 
@@ -53,7 +53,9 @@ class PDFGen:
 
         # Mudandça de cor para as linhas de sábados de domingos
         for i in range(1, linhas + 1, 1):
-            if (i % 7 == diferencaDias + 1 or i % 7 == diferencaDias + 2):
+            if (i % 7 == diferencaDias):
+                table_style.append(('BACKGROUND', (0, i), (11, i), colors.gray))
+            elif(i % 7 == diferencaDias+1 or i-1 % 7 == diferencaDias):
                 table_style.append(('BACKGROUND', (0, i), (11, i), colors.gray))
 
         return table_style
