@@ -90,7 +90,7 @@ class MainWindow(Gtk.Window):
     def on_month_combo_changed(self, combo):
         self.month = combo.get_active()
 
-        if(self.month == 1):
+        if(self.month == 1): # habilitar e desabilitar checkbox de bissexto
             self.check_leapyear.set_sensitive(True)
             self.label_leapyear.set_sensitive(True)
         else:
@@ -102,15 +102,30 @@ class MainWindow(Gtk.Window):
 
     def create_pdf(self, button):
         self.data_model.name = self.name_entry.get_text().strip()
-        self.data_model.month = self.month + 1
+        self.data_model.month = self.month
         self.data_model.is_leapyear = self.check_leapyear.get_active()
-        self.data_model.day1 = self.day1 + 1
+        self.data_model.day1 = self.day1
 
         if(self.validate()):
             data_manager = DataManager()
 
+            qtdDiasMes = [
+                31, 28, 31, 30, 31, 30,
+                31, 31, 30, 31, 30, 31
+            ]
+
+            qtdDiasMesAnoBissexto = [
+                31, 29, 31, 30, 31, 30,
+                31, 31, 30, 31, 30, 31
+            ]
+
             doc = PDFGen()
-            doc.create_new_document(31, self.data_model.month, self.data_model.day1, data_manager.get_names())
+            
+            if(self.data_model.is_leapyear == False):
+                doc.create_new_document(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, data_manager.get_names())
+            else:
+                doc.create_new_document(qtdDiasMesAnoBissexto[self.data_model.month], self.data_model.month, self.data_model.day1, data_manager.get_names())
+            
             doc.build()
 
             win = MessageDialogWindow("Folha de Pontos Gerada!")
@@ -118,13 +133,13 @@ class MainWindow(Gtk.Window):
             win.show_all()
             Gtk.main()
         else:
-            win = MessageDialogWindow("Dados Inválidos! Tente Novamente.\n\n\t- Campo de Mês é obrigatório;\n\t- Campo de Dia é obrigatório")
+            win = MessageDialogWindow("Dados Inválidos! Tente Novamente.\n\nObservação:\n\t- Campo de Mês é obrigatório;\n\t- Campo de Dia é obrigatório")
             win.connect("destroy", Gtk.main_quit)
             win.show_all()
             Gtk.main()
 
     def validate(self):
-        if(self.data_model.month and self.data_model.day1):
+        if(self.data_model.month != "" and self.data_model.day1 != ""):
             return True
         else:
             return False
