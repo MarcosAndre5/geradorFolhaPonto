@@ -1,2 +1,5 @@
+# https://cezarcruz.com.br/dica-gitignore-nao-esta-funcionando/
+
+
 *.pdf
 __pycache__/
