@@ -10,7 +10,7 @@ from data_manager import DataManager
 class MainWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Gerador de Folha de Pontos")
-        self.set_icon_from_file('iconeGFP.png')
+        self.set_icon_from_file('icone.png')
 
         self.set_border_width(15)
         self.set_resizable(False)
@@ -26,17 +26,31 @@ class MainWindow(Gtk.Window):
         leapyear_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         name_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
+        obs_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        
+        
         vbox.pack_start(name_box, True, True, 0)
+        
+        vbox.pack_start(obs_box, True, True, 0)
+        
         vbox.pack_start(month_box, True, True, 0)
         vbox.pack_start(leapyear_box, True, True, 0)
         vbox.pack_start(day1_box, True, True, 0)
         vbox.pack_start(button_box, True, True, 0)
 
+        label_obs = Gtk.Label(
+            "Obs: Se o campo de Nome ficar em branco, a folha de\n" +
+            "pontos será gerada com base no arquivo nomes.csv.\n" +
+            "Se o campo de Nome for preenchido, será gerada uma\n" +
+            "folha de pontos com o nome inserido no campo."
+        )
+        obs_box.pack_start(label_obs, False, False, True)
+
+        
         label_name = Gtk.Label("Nome do servidor: ")
         name_box.pack_start(label_name, False, False, True)
 
         self.name_entry = Gtk.Entry()
-        self.name_entry.set_text("Insira um nome...")
         name_box.pack_start(self.name_entry, True, True, 0)
 
         label_month = Gtk.Label("Mês da folha:* ")
@@ -114,17 +128,18 @@ class MainWindow(Gtk.Window):
                 31, 31, 30, 31, 30, 31
             ]
 
-            qtdDiasMesAnoBissexto = [
-                31, 29, 31, 30, 31, 30,
-                31, 31, 30, 31, 30, 31
-            ]
-
             doc = PDFGen()
-            
-            if(self.data_model.is_leapyear == False):
-                doc.create_new_document(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, data_manager.get_names())
+            if(self.data_model.name == ""):
+                if(self.data_model.is_leapyear == False):
+                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, data_manager.get_names())
+                elif(self.data_model.is_leapyear == True and self.data_model.month == 1):
+                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month]+1, self.data_model.month, self.data_model.day1, data_manager.get_names())
             else:
-                doc.create_new_document(qtdDiasMesAnoBissexto[self.data_model.month], self.data_model.month, self.data_model.day1, data_manager.get_names())
+                if(self.data_model.is_leapyear == False):
+                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, self.data_model.name)
+                    print (len(self.data_model.name))
+                elif(self.data_model.is_leapyear == True and self.data_model.month == 1):
+                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month]+1, self.data_model.month, self.data_model.day1, self.data_model.name)
             
             doc.build()
 
