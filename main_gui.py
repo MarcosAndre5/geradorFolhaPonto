@@ -18,6 +18,7 @@ class MainWindow(Gtk.Window):
         self.data_model = DataModel()
         self.month = 0
         self.day1 = 0
+        self.feriados = 0
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         month_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -27,25 +28,28 @@ class MainWindow(Gtk.Window):
         name_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
         obs_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        
+        obs_button = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        feriados_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         
         vbox.pack_start(name_box, True, True, 0)
-        
         vbox.pack_start(obs_box, True, True, 0)
-        
+        vbox.pack_start(obs_button, True, True, 0)
         vbox.pack_start(month_box, True, True, 0)
         vbox.pack_start(leapyear_box, True, True, 0)
         vbox.pack_start(day1_box, True, True, 0)
+        vbox.pack_start(feriados_box, True, True, 0)
         vbox.pack_start(button_box, True, True, 0)
 
-        label_obs = Gtk.Label(
-            "Obs: Se o campo de Nome ficar em branco, a folha de\n" +
-            "pontos será gerada com base no arquivo nomes.csv.\n" +
-            "Se o campo de Nome for preenchido, será gerada uma\n" +
-            "folha de pontos com o nome inserido no campo."
+        label_obs = Gtk.Label()
+        label_obs.set_markup(
+            "<small>"+
+                "Obs: Se o campo de Nome ficar em branco, a folha de pontos será\n" +
+                "gerada com base no arquivo <b>nomes.csv</b>. Se o campo de Nome for\n" +
+                "preenchido, será gerada uma folha de pontos com o nome inserido\n" +
+                "no campo." +
+            "</small>"
         )
         obs_box.pack_start(label_obs, False, False, True)
-
         
         label_name = Gtk.Label("Nome do servidor: ")
         name_box.pack_start(label_name, False, False, True)
@@ -89,11 +93,17 @@ class MainWindow(Gtk.Window):
         day1_combo = Gtk.ComboBoxText()
         day1_combo.connect("changed", self.on_day1_combo_changed)
         day1_combo.set_entry_text_column(0)
-        
+
         for day in days:
             day1_combo.append_text(day)
 
         day1_box.pack_start(day1_combo, False, False, 0)
+
+        label_feriados = Gtk.Label("Feriados do mês: ")
+        feriados_box.pack_start(label_feriados, False, False, True)
+        
+        self.feriados_entry = Gtk.Entry()
+        feriados_box.pack_start(self.feriados_entry, True, True, 0)
 
         button = Gtk.Button.new_with_label("Gerar Folha de Pontos")
         button.connect("clicked", self.create_pdf)
@@ -119,7 +129,8 @@ class MainWindow(Gtk.Window):
         self.data_model.month = self.month
         self.data_model.is_leapyear = self.check_leapyear.get_active()
         self.data_model.day1 = self.day1
-
+        self.data_model.feriados = self.feriados_entry.get_text().replace(' ', '').split(',')
+        
         if(self.validate()):
             data_manager = DataManager()
 
@@ -131,15 +142,14 @@ class MainWindow(Gtk.Window):
             doc = PDFGen()
             if(self.data_model.name == ""):
                 if(self.data_model.is_leapyear == False):
-                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, data_manager.get_names())
+                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, data_manager.get_names(), self.data_model.feriados)
                 elif(self.data_model.is_leapyear == True and self.data_model.month == 1):
-                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month]+1, self.data_model.month, self.data_model.day1, data_manager.get_names())
+                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month]+1, self.data_model.month, self.data_model.day1, data_manager.get_names(), self.data_model.feriados)
             else:
                 if(self.data_model.is_leapyear == False):
-                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, self.data_model.name)
-                    print (len(self.data_model.name))
+                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, self.data_model.name, self.data_model.feriados)
                 elif(self.data_model.is_leapyear == True and self.data_model.month == 1):
-                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month]+1, self.data_model.month, self.data_model.day1, self.data_model.name)
+                    doc.criarNovoDocumento(qtdDiasMes[self.data_model.month]+1, self.data_model.month, self.data_model.day1, self.data_model.name, self.data_model.feriados)
             
             doc.build()
 
@@ -154,7 +164,7 @@ class MainWindow(Gtk.Window):
             Gtk.main()
 
     def validate(self):
-        if(self.data_model.month != "" and self.data_model.day1 != ""):
+        if(self.data_model.month != '' and self.data_model.day1 != ''):
             return True
         else:
             return False
