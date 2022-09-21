@@ -5,7 +5,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, PageBreak
 class PDFGen:
     elementos = []
 
-    def criarNovoDocumento(self, linhas, mes, primeiroDiaMes, nomeFuncionario):
+    def criarNovoDocumento(self, linhas, mes, primeiroDiaMes, nomeFuncionario, feriados):
         self.doc = SimpleDocTemplate("Folha_de_Pontos.pdf", pagesize=A4, rightMargin=0, leftMargin=0, topMargin=0, bottomMargin=0)
         
         # Quanto no sábado, supondo (0 - segunda, 6 - domingo)
@@ -13,7 +13,7 @@ class PDFGen:
         
         if(isinstance(nomeFuncionario, list)):
             for nome in nomeFuncionario:
-                dadosTabela = self.montarTabela(nome, linhas, mes + 1, diferencaDias)
+                dadosTabela = self.montarTabela(nome, linhas, mes + 1, diferencaDias, feriados)
 
                 t = Table(dadosTabela, 11 * [0.65 * inch], (linhas + 2) * [0.34 * inch])
                 t.setStyle(TableStyle(self.obterEstiloTabela(linhas + 1, diferencaDias)))
@@ -21,17 +21,17 @@ class PDFGen:
                 self.elementos.append(t)
                 self.elementos.append(PageBreak())
         elif(isinstance(nomeFuncionario, str)):
-            dadosTabela = self.montarTabela(nomeFuncionario, linhas, mes + 1, diferencaDias)
+            dadosTabela = self.montarTabela(nomeFuncionario, linhas, mes + 1, diferencaDias, feriados)
 
             t = Table(dadosTabela, 11 * [0.65 * inch], (linhas + 2) * [0.34 * inch])
-            t.setStyle(TableStyle(self.obterEstiloTabela(linhas + 1, diferencaDias)))
+            t.setStyle(TableStyle(self.obterEstiloTabela(linhas + 1, diferencaDias, feriados)))
 
             self.elementos.append(t)
             self.elementos.append(PageBreak())
 
-    def montarTabela(self, nome, linhas, mes, diferencaDias):
+    def montarTabela(self, nome, linhas, mes, diferencaDias, feriados):
         dadosTabela = [[nome.upper()]]
-        
+
         sabado = False
         for i in range(0, linhas + 1):
             if i == 0:
@@ -42,12 +42,14 @@ class PDFGen:
             elif i % 7 == diferencaDias + 1 or sabado == True:
                 dadosTabela.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), '', 'DOMINGO', '', '', '', '', '', '', '', ''])
                 sabado = False
+            elif str(i) in feriados:
+                dadosTabela.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), '', 'FERIADO', '', '', '', '', '', '', '', ''])
             else:
                 dadosTabela.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', '', '', '', '', '', '', '', '', ':'])
 
         return dadosTabela
 
-    def obterEstiloTabela(self, linhas, diferencaDias):
+    def obterEstiloTabela(self, linhas, diferencaDias, feriados):
         estiloTabela = [
             ('ALIGN', (0, 0), (10, linhas), 'CENTER'),
             ('VALIGN', (0, 0), (10, linhas), 'MIDDLE'),
@@ -72,6 +74,8 @@ class PDFGen:
             elif i % 7 == diferencaDias + 1 or sabado == True:
                 estiloTabela.append(('BACKGROUND', (0, i+1), (11, i+1), colors.gray))
                 sabado = False
+            elif str(i) in feriados:
+                estiloTabela.append(('BACKGROUND', (0, i+1), (11, i+1), colors.gray))
 
         return estiloTabela
 
