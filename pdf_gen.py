@@ -16,7 +16,7 @@ class PDFGen:
                 dadosTabela = self.montarTabela(nome, linhas, mes + 1, diferencaDias, feriados)
 
                 t = Table(dadosTabela, 11 * [0.65 * inch], (linhas + 2) * [0.34 * inch])
-                t.setStyle(TableStyle(self.obterEstiloTabela(linhas + 1, diferencaDias)))
+                t.setStyle(TableStyle(self.obterEstiloTabela(linhas + 1, diferencaDias, feriados)))
                 
                 self.elementos.append(t)
                 self.elementos.append(PageBreak())
