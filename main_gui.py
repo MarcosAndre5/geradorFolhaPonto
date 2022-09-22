@@ -10,7 +10,7 @@ from data_manager import DataManager
 class MainWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Gerador de Folha de Pontos")
-        self.set_icon_from_file('icone.png')
+        self.set_icon_from_file('iconeGFP.png')
 
         self.set_border_width(15)
         self.set_resizable(False)
@@ -23,6 +23,7 @@ class MainWindow(Gtk.Window):
         
         name_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         texto_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        nomesArquivo_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         month_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         leapyear_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         day1_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -30,6 +31,7 @@ class MainWindow(Gtk.Window):
         texto_box2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         
+        vbox.pack_start(nomesArquivo_box, True, True, 0)
         vbox.pack_start(name_box, True, True, 0)
         vbox.pack_start(texto_box, True, True, 0)
         vbox.pack_start(month_box, True, True, 0)
@@ -39,22 +41,34 @@ class MainWindow(Gtk.Window):
         vbox.pack_start(texto_box2, True, True, 0)
         vbox.pack_start(button_box, True, True, 0)
 
-        label_texto = Gtk.Label()
-        label_texto.set_markup(
-            "<small>"+
-                "Obs: Se o campo de Nome ficar em branco, a folha de pontos será\n" +
-                "gerada com base no arquivo <b>nomes.csv</b>. Se o campo de Nome for\n" +
-                "preenchido, será gerada uma folha de pontos com o nome inserido\n" +
-                "no campo." +
+        self.label_texto = Gtk.Label()
+        self.label_texto.set_markup(
+            "<small>" +
+                "Obs: Se o campo de Nome for preenchido, será gerada uma única\n" +
+                "página de folha de pontos correspondente ao nome inserido no\n" +
+                "campo." +
             "</small>"
         )
-        texto_box.pack_start(label_texto, False, False, True)
+        self.label_texto.set_sensitive(True)
+        texto_box.pack_start(self.label_texto, False, False, True)
         
-        label_name = Gtk.Label("Nome do servidor: ")
-        name_box.pack_start(label_name, False, False, True)
+        self.label_name = Gtk.Label("Nome do servidor: ")
+        self.label_name.set_sensitive(True)
+        name_box.pack_start(self.label_name, False, False, True)
 
         self.name_entry = Gtk.Entry()
+        self.name_entry.set_sensitive(True)
         name_box.pack_start(self.name_entry, True, True, 0)
+
+
+        self.label_nomesArquico = Gtk.Label()
+        self.label_nomesArquico.set_markup("Importar nomes do arquivo <b>nomes.csv</b>?")
+        nomesArquivo_box.pack_start(self.label_nomesArquico, False, False, True)
+
+        self.check_nomesAquivo = Gtk.CheckButton()
+        self.check_nomesAquivo.connect("toggled", self.desabilitarCampoNome)
+        nomesArquivo_box.pack_start(self.check_nomesAquivo, False, False, True)
+
 
         label_month = Gtk.Label("Mês da folha:* ")
         month_box.pack_start(label_month, False, False, True)
@@ -106,7 +120,7 @@ class MainWindow(Gtk.Window):
 
         label_texto2 = Gtk.Label()
         label_texto2.set_markup(
-            "<small>"+
+            "<small>" +
                 "Obs: Informe os dias feriados separados por vírgula. <b>Ex: 5, 12, 31...</b>" +
             "</small>"
         )
@@ -117,6 +131,16 @@ class MainWindow(Gtk.Window):
         button_box.pack_start(button, True, True, 0)
 
         self.add(vbox)
+
+    def desabilitarCampoNome(self, checkbutton):
+        if checkbutton.get_active():
+            self.label_name.set_sensitive(False)
+            self.name_entry.set_sensitive(False)
+            self.label_texto.set_sensitive(False)
+        else:
+            self.label_name.set_sensitive(True)
+            self.name_entry.set_sensitive(True)
+            self.label_texto.set_sensitive(True)
 
     def on_month_combo_changed(self, combo):
         self.month = combo.get_active()
@@ -141,13 +165,10 @@ class MainWindow(Gtk.Window):
         if(self.validate()):
             data_manager = DataManager()
 
-            qtdDiasMes = [
-                31, 28, 31, 30, 31, 30,
-                31, 31, 30, 31, 30, 31
-            ]
+            qtdDiasMes = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
             doc = PDFGen()
-            print (self.data_model.feriados)
+            
             if(self.data_model.name == ''):
                 if(self.data_model.is_leapyear == False):
                     doc.criarNovoDocumento(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, data_manager.get_names(), self.data_model.feriados)
@@ -166,16 +187,16 @@ class MainWindow(Gtk.Window):
             win.show_all()
             Gtk.main()
         else:
-            win = MessageDialogWindow("Dados Inválidos! Tente Novamente.\n\nObservação:\n\t- Campo de Mês é obrigatório;\n\t- Campo de Dia é obrigatório")
+            win = MessageDialogWindow("Dados Inválidos! Tente Novamente.\n\nObservação:\n\t- Campo de Mês é obrigatório;\n\t- Campo de Dia é obrigatório.")
             win.connect("destroy", Gtk.main_quit)
             win.show_all()
             Gtk.main()
 
     def validate(self):
-        if(self.data_model.month != '' and self.data_model.day1 != ''):
-            return True
-        else:
+        if(self.data_model.month == '' or self.data_model.day1 == ''):
             return False
+        else:
+            return True
 
 class MessageDialogWindow(Gtk.Window):
     def __init__(self, text):
@@ -184,7 +205,7 @@ class MessageDialogWindow(Gtk.Window):
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
         self.add(box)
-        self.set_default_size(500, 100)
+        self.set_default_size(300, 100)
         self.set_position(Gtk.WindowPosition.CENTER)
 
         label = Gtk.Label(text)
