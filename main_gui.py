@@ -16,32 +16,31 @@ class MainWindow(Gtk.Window):
         self.set_resizable(False)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.data_model = DataModel()
-        self.month = 0
-        self.day1 = 0
-        self.feriados = 0
+        self.month = ''
+        self.day1 = ''
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        month_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        day1_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        leapyear_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        
         name_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-
-        obs_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        obs_button = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        texto_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        month_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        leapyear_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        day1_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         feriados_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        texto_box2 = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        button_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         
         vbox.pack_start(name_box, True, True, 0)
-        vbox.pack_start(obs_box, True, True, 0)
-        vbox.pack_start(obs_button, True, True, 0)
+        vbox.pack_start(texto_box, True, True, 0)
         vbox.pack_start(month_box, True, True, 0)
         vbox.pack_start(leapyear_box, True, True, 0)
         vbox.pack_start(day1_box, True, True, 0)
         vbox.pack_start(feriados_box, True, True, 0)
+        vbox.pack_start(texto_box2, True, True, 0)
         vbox.pack_start(button_box, True, True, 0)
 
-        label_obs = Gtk.Label()
-        label_obs.set_markup(
+        label_texto = Gtk.Label()
+        label_texto.set_markup(
             "<small>"+
                 "Obs: Se o campo de Nome ficar em branco, a folha de pontos será\n" +
                 "gerada com base no arquivo <b>nomes.csv</b>. Se o campo de Nome for\n" +
@@ -49,7 +48,7 @@ class MainWindow(Gtk.Window):
                 "no campo." +
             "</small>"
         )
-        obs_box.pack_start(label_obs, False, False, True)
+        texto_box.pack_start(label_texto, False, False, True)
         
         label_name = Gtk.Label("Nome do servidor: ")
         name_box.pack_start(label_name, False, False, True)
@@ -105,6 +104,14 @@ class MainWindow(Gtk.Window):
         self.feriados_entry = Gtk.Entry()
         feriados_box.pack_start(self.feriados_entry, True, True, 0)
 
+        label_texto2 = Gtk.Label()
+        label_texto2.set_markup(
+            "<small>"+
+                "Obs: Informe os dias feriados separados por vírgula. <b>Ex: 5, 12, 31...</b>" +
+            "</small>"
+        )
+        texto_box2.pack_start(label_texto2, False, False, True)
+
         button = Gtk.Button.new_with_label("Gerar Folha de Pontos")
         button.connect("clicked", self.create_pdf)
         button_box.pack_start(button, True, True, 0)
@@ -140,7 +147,8 @@ class MainWindow(Gtk.Window):
             ]
 
             doc = PDFGen()
-            if(self.data_model.name == ""):
+            print (self.data_model.feriados)
+            if(self.data_model.name == ''):
                 if(self.data_model.is_leapyear == False):
                     doc.criarNovoDocumento(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, data_manager.get_names(), self.data_model.feriados)
                 elif(self.data_model.is_leapyear == True and self.data_model.month == 1):
