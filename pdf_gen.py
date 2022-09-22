@@ -2,11 +2,16 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import inch, A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, PageBreak
 
+import os
+
 class PDFGen:
     elementos = []
 
     def criarNovoDocumento(self, linhas, mes, primeiroDiaMes, nomeFuncionario, feriados):
-        self.doc = SimpleDocTemplate("Folha_de_Pontos.pdf", pagesize=A4, rightMargin=0, leftMargin=0, topMargin=0, bottomMargin=0)
+        if os.path.exists('PDFs') == False:
+            os.mkdir('PDFs')
+
+        self.doc = SimpleDocTemplate("PDFs/Folha_de_Pontos_" + self.nomeMes(mes + 1) + ".pdf", pagesize=A4, rightMargin=0, leftMargin=0, topMargin=0, bottomMargin=0)
         
         # Quanto no sábado, supondo (0 - segunda, 6 - domingo)
         diferencaDias = (6 - primeiroDiaMes)
@@ -28,6 +33,20 @@ class PDFGen:
 
             self.elementos.append(t)
             self.elementos.append(PageBreak())
+
+    def nomeMes(self, mes):
+        if mes == 1: return "Janeiro"
+        elif mes == 2: return "Fevereiro"
+        elif mes == 3: return "Março"
+        elif mes == 4: return "Abril"
+        elif mes == 5: return "Maio"
+        elif mes == 6: return "Junho"
+        elif mes == 7: return "Julho"
+        elif mes == 8: return "Agosto"
+        elif mes == 9: return "Setembro"
+        elif mes == 10: return "Outubro"
+        elif mes == 11: return "Novembro"
+        elif mes == 12: return "Dexembro"
 
     def montarTabela(self, nome, linhas, mes, diferencaDias, feriados):
         dadosTabela = [[nome.upper()]]
