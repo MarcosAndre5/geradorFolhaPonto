@@ -16,8 +16,6 @@ class MainWindow(Gtk.Window):
         self.set_resizable(False)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.data_model = DataModel()
-        self.month = ''
-        self.day1 = ''
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         
@@ -40,27 +38,7 @@ class MainWindow(Gtk.Window):
         vbox.pack_start(feriados_box, True, True, 0)
         vbox.pack_start(texto_box2, True, True, 0)
         vbox.pack_start(button_box, True, True, 0)
-
-        self.label_texto = Gtk.Label()
-        self.label_texto.set_markup(
-            "<small>" +
-                "Obs: Se o campo de Nome for preenchido, será gerada uma única\n" +
-                "página de folha de pontos correspondente ao nome inserido no\n" +
-                "campo." +
-            "</small>"
-        )
-        self.label_texto.set_sensitive(True)
-        texto_box.pack_start(self.label_texto, False, False, True)
         
-        self.label_name = Gtk.Label("Nome do servidor: ")
-        self.label_name.set_sensitive(True)
-        name_box.pack_start(self.label_name, False, False, True)
-
-        self.name_entry = Gtk.Entry()
-        self.name_entry.set_sensitive(True)
-        name_box.pack_start(self.name_entry, True, True, 0)
-
-
         self.label_nomesArquico = Gtk.Label()
         self.label_nomesArquico.set_markup("Importar nomes do arquivo <b>nomes.csv</b>?")
         nomesArquivo_box.pack_start(self.label_nomesArquico, False, False, True)
@@ -69,8 +47,26 @@ class MainWindow(Gtk.Window):
         self.check_nomesAquivo.connect("toggled", self.desabilitarCampoNome)
         nomesArquivo_box.pack_start(self.check_nomesAquivo, False, False, True)
 
+        self.label_name = Gtk.Label("Nome do Servidor: ")
+        self.label_name.set_sensitive(True)
+        name_box.pack_start(self.label_name, False, False, True)
 
-        label_month = Gtk.Label("Mês da folha:* ")
+        self.name_entry = Gtk.Entry()
+        self.name_entry.set_sensitive(True)
+        name_box.pack_start(self.name_entry, True, True, 0)
+
+        self.label_texto = Gtk.Label()
+        self.label_texto.set_markup(
+            "<small>" +
+                "<i>Obs: Se o campo de <b>Nome do Servidor</b> for preenchido, será gerada\n" +
+                "uma única página de folha de pontos correspondente ao nome do\n" +
+                "servidor inserido no campo.</i>" +
+            "</small>"
+        )
+        self.label_texto.set_sensitive(True)
+        texto_box.pack_start(self.label_texto, False, False, True)
+
+        label_month = Gtk.Label("Mês da Folha:* ")
         month_box.pack_start(label_month, False, False, True)
 
         month_combo = Gtk.ComboBoxText()
@@ -87,7 +83,7 @@ class MainWindow(Gtk.Window):
 
         month_box.pack_start(month_combo, False, False, True)
 
-        self.label_leapyear = Gtk.Label("Ano bissexto? ")
+        self.label_leapyear = Gtk.Label("O ano é bissexto? ")
         self.label_leapyear.set_sensitive(False)
         leapyear_box.pack_start(self.label_leapyear, False, False, True)
 
@@ -112,7 +108,7 @@ class MainWindow(Gtk.Window):
 
         day1_box.pack_start(day1_combo, False, False, 0)
 
-        label_feriados = Gtk.Label("Feriados do mês: ")
+        label_feriados = Gtk.Label("Feriados do Mês: ")
         feriados_box.pack_start(label_feriados, False, False, True)
         
         self.feriados_entry = Gtk.Entry()
@@ -121,7 +117,7 @@ class MainWindow(Gtk.Window):
         label_texto2 = Gtk.Label()
         label_texto2.set_markup(
             "<small>" +
-                "Obs: Informe os dias feriados separados por vírgula. <b>Ex: 5, 12, 31...</b>" +
+                "<i>Obs: Informe os dias feriados separados por vírgula. <b>Ex: 5, 12, 31...</b></i>" +
             "</small>"
         )
         texto_box2.pack_start(label_texto2, False, False, True)
@@ -156,6 +152,7 @@ class MainWindow(Gtk.Window):
         self.day1 = combo.get_active()
 
     def create_pdf(self, button):
+        self.data_model.nomesArquivo = self.check_nomesAquivo.get_active()
         self.data_model.name = self.name_entry.get_text().strip()
         self.data_model.month = self.month
         self.data_model.is_leapyear = self.check_leapyear.get_active()
@@ -169,12 +166,12 @@ class MainWindow(Gtk.Window):
 
             doc = PDFGen()
             
-            if(self.data_model.name == ''):
+            if(self.data_model.nomesArquivo == True):
                 if(self.data_model.is_leapyear == False):
                     doc.criarNovoDocumento(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, data_manager.get_names(), self.data_model.feriados)
                 elif(self.data_model.is_leapyear == True and self.data_model.month == 1):
                     doc.criarNovoDocumento(qtdDiasMes[self.data_model.month]+1, self.data_model.month, self.data_model.day1, data_manager.get_names(), self.data_model.feriados)
-            else:
+            elif(self.data_model.nomesArquivo == False and self.data_model.name != ''):
                 if(self.data_model.is_leapyear == False):
                     doc.criarNovoDocumento(qtdDiasMes[self.data_model.month], self.data_model.month, self.data_model.day1, self.data_model.name, self.data_model.feriados)
                 elif(self.data_model.is_leapyear == True and self.data_model.month == 1):
@@ -182,18 +179,23 @@ class MainWindow(Gtk.Window):
             
             doc.build()
 
-            win = MessageDialogWindow("Folha de Pontos Gerada!")
+            win = MessageDialogWindow("Folha de Pontos Gerada!") #\n\nA Folha de Pontos foi salva na pasta PDFs.
             win.connect("destroy", Gtk.main_quit)
             win.show_all()
             Gtk.main()
         else:
-            win = MessageDialogWindow("Dados Inválidos! Tente Novamente.\n\nObservação:\n\t- Campo de Mês é obrigatório;\n\t- Campo de Dia é obrigatório.")
+            win = MessageDialogWindow(
+                "Dados Inválidos! Tente Novamente.\n\n" +
+                "Observação:\n" +
+                    "\t- Opção de Nome(s) é obrigatório;\n" +
+                    "\t- Campo de Mês é obrigatório;\n" +
+                    "\t- Campo de Dia é obrigatório.")
             win.connect("destroy", Gtk.main_quit)
             win.show_all()
             Gtk.main()
 
     def validate(self):
-        if(self.data_model.month == '' or self.data_model.day1 == ''):
+        if(self.data_model.month == '' or self.data_model.day1 == '' or (self.data_model.nomesArquivo == False and self.data_model.name == '')):
             return False
         else:
             return True
@@ -205,7 +207,7 @@ class MessageDialogWindow(Gtk.Window):
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 
         self.add(box)
-        self.set_default_size(300, 100)
+        self.set_default_size(300, 125)
         self.set_position(Gtk.WindowPosition.CENTER)
 
         label = Gtk.Label(text)
