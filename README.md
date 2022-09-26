@@ -4,6 +4,16 @@ Projeto em Python para geração de folha de pontos de funcionários.
 ### Pré-requisitos
 * Python 3
 * Pandas
-  ```sh
-  pip install pandas
-  ```
+    ```
+    pip install pandas
+    ```
+
+### Gerando o arquivo executável
+* Pyinstaller
+    ```
+    pip install pyinstaller
+    ```
+    
+    ```
+    pyinstaller <nome_arquivo.py>
+    ```
