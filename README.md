@@ -15,5 +15,5 @@ Projeto em Python para geração de folha de pontos de funcionários.
     ```
     
     ```
-    pyinstaller <nome_arquivo.py>
+    pyinstaller --noconsole --name="Nome do Projeto" --icon="nome_icone.ico" --add-data="nome_icone.ico;." --onefile <nome_arquivo.py>
     ```
