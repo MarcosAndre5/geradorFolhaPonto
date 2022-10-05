@@ -1,4 +1,3 @@
 *.pdf
 __pycache__/
-nomes.csv
-nomes1.csv
+nomes*
