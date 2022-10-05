@@ -2,3 +2,5 @@
 *.png
 __pycache__/
 PDFs/
+nomes.csv
+nomes1.csv
