@@ -1,8 +1,7 @@
+import os
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import inch, A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, PageBreak
-
-import os
 
 class PDFGen:
     elementos = []
@@ -11,25 +10,24 @@ class PDFGen:
         if os.path.exists('PDFs') == False:
             os.mkdir('PDFs')
 
-        self.doc = SimpleDocTemplate("PDFs/Folha_de_Pontos_" + self.nomeMes(mes + 1) + ".pdf", pagesize=A4, rightMargin=0, leftMargin=0, topMargin=0, bottomMargin=0)
+        self.doc = SimpleDocTemplate("PDFs/Folha_de_Pontos_"+self.nomeMes(mes+1)+".pdf", pagesize=A4, rightMargin=0, leftMargin=0, topMargin=5, bottomMargin=0)
         
-        # Quanto no sábado, supondo (0 - segunda, 6 - domingo)
-        diferencaDias = (6 - primeiroDiaMes)
+        diferencaDias = (6 - primeiroDiaMes) # Quanto no sábado, supondo (0 - segunda, 6 - domingo)
         
         if(isinstance(nomeFuncionario, list)):
             for nome in nomeFuncionario:
-                dadosTabela = self.montarTabela(nome, linhas, mes + 1, diferencaDias, feriados)
+                dadosTabela = self.montarTabela(nome, linhas, mes+1, diferencaDias, feriados)
 
-                t = Table(dadosTabela, 11 * [0.70 * inch], (linhas + 2) * [0.34 * inch])
-                t.setStyle(TableStyle(self.obterEstiloTabela(linhas + 1, diferencaDias, feriados)))
+                t = Table(dadosTabela, 11 * [0.70*inch], (linhas+2) * [0.34*inch])
+                t.setStyle(TableStyle(self.obterEstiloTabela(linhas+1, diferencaDias, feriados)))
                 
                 self.elementos.append(t)
                 self.elementos.append(PageBreak())
         elif(isinstance(nomeFuncionario, str)):
-            dadosTabela = self.montarTabela(nomeFuncionario, linhas, mes + 1, diferencaDias, feriados)
+            dadosTabela = self.montarTabela(nomeFuncionario, linhas, mes+1, diferencaDias, feriados)
 
-            t = Table(dadosTabela, 11 * [0.65 * inch], (linhas + 2) * [0.34 * inch])
-            t.setStyle(TableStyle(self.obterEstiloTabela(linhas + 1, diferencaDias, feriados)))
+            t = Table(dadosTabela, 11 * [0.70*inch], (linhas+2) * [0.34*inch])
+            t.setStyle(TableStyle(self.obterEstiloTabela(linhas+1, diferencaDias, feriados)))
 
             self.elementos.append(t)
             self.elementos.append(PageBreak())
@@ -52,19 +50,19 @@ class PDFGen:
         dadosTabela = [[nome.upper()]]
 
         sabado = False
-        for i in range(0, linhas + 1):
+        for i in range(0, linhas+1):
             if i == 0:
-                dadosTabela.append(['DATA', 'ENTRADA', 'ASSINATURA', '', '', '', '', '', '', '', 'SAÍDA'])
+                dadosTabela.append(['DATA', 'ENTRADA', 'ASSINATURA', '','','','','','','', 'SAÍDA'])
             elif i % 7 == diferencaDias:
-                dadosTabela.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), '', 'SÁBADO', '', '', '', '', '', '', '', ''])
+                dadosTabela.append(["{:02d}".format(i)+'/'+"{:02d}".format(mes), '', 'SÁBADO', '','','','','','','',''])
                 sabado = True
             elif i % 7 == diferencaDias + 1 or sabado == True:
-                dadosTabela.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), '', 'DOMINGO', '', '', '', '', '', '', '', ''])
+                dadosTabela.append(["{:02d}".format(i)+'/'+"{:02d}".format(mes), '', 'DOMINGO', '','','','','','','',''])
                 sabado = False
             elif str(i) in feriados:
-                dadosTabela.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), '', 'FERIADO', '', '', '', '', '', '', '', ''])
+                dadosTabela.append(["{:02d}".format(i)+'/'+"{:02d}".format(mes), '', 'FERIADO', '','','','','','','',''])
             else:
-                dadosTabela.append(["{:02d}".format(i) + '/' + "{:02d}".format(mes), ':', '', '', '', '', '', '', '', '', ':'])
+                dadosTabela.append(["{:02d}".format(i)+'/'+"{:02d}".format(mes), ':', '','','','','','','','', ':'])
 
         return dadosTabela
 
@@ -79,22 +77,20 @@ class PDFGen:
             ('SPAN', (7, 1), (9, 1))
         ]
 
-        # células grandes para nomes
-        for i in range(1, linhas + 1):
+        for i in range(1, linhas+1): # células grandes para nomes
             estiloTabela.append(('SPAN', (2, i), (9, i)))
             estiloTabela.append(('SPAN', (7, i), (9, i)))
 
-        # Mudandça de cor para as linhas de sábados de domingos
         sabado = False
-        for i in range(1, linhas + 1):
+        for i in range(1, linhas+1): # coloração para linhas de sábados, domingos e feriados
             if i % 7 == diferencaDias:
-                estiloTabela.append(('BACKGROUND', (0, i+1), (11, i+1), colors.gray))
+                estiloTabela.append(('BACKGROUND', (0, i+1), (11, i+1), colors.darkgrey))
                 sabado = True
             elif i % 7 == diferencaDias + 1 or sabado == True:
-                estiloTabela.append(('BACKGROUND', (0, i+1), (11, i+1), colors.gray))
+                estiloTabela.append(('BACKGROUND', (0, i+1), (11, i+1), colors.darkgrey))
                 sabado = False
             elif str(i) in feriados:
-                estiloTabela.append(('BACKGROUND', (0, i+1), (11, i+1), colors.gray))
+                estiloTabela.append(('BACKGROUND', (0, i+1), (11, i+1), colors.darkgrey))
 
         return estiloTabela
 

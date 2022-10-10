@@ -10,7 +10,7 @@ from data_manager import DataManager
 class MainWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Gerador de Folha de Pontos")
-        self.set_icon_from_file('iconeGFP.png')
+        #self.set_icon_from_file('iconeGFP.png')
 
         self.set_border_width(15)
         self.set_resizable(False)
@@ -138,10 +138,10 @@ class MainWindow(Gtk.Window):
             self.name_entry.set_sensitive(True)
             self.label_texto.set_sensitive(True)
 
-    def on_month_combo_changed(self, combo):
+    def on_month_combo_changed(self, combo):  # habilitar e desabilitar checkbox de bissexto
         self.month = combo.get_active()
 
-        if(self.month == 1): # habilitar e desabilitar checkbox de bissexto
+        if(self.month == 1):
             self.check_leapyear.set_sensitive(True)
             self.label_leapyear.set_sensitive(True)
         else:
@@ -179,7 +179,9 @@ class MainWindow(Gtk.Window):
             
             doc.build()
 
-            win = MessageDialogWindow("Folha de Pontos Gerada!") #\n\nA Folha de Pontos foi salva na pasta PDFs.
+            win = MessageDialogWindow(
+                "\tFolha de Pontos Gerada!" +
+                "\n\nO arquivo foi salvo na pasta PDFs.")
             win.connect("destroy", Gtk.main_quit)
             win.show_all()
             Gtk.main()
