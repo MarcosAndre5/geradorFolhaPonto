@@ -8,7 +8,7 @@ O projeto tem como objetivo o desenvolvimento de uma ferramenta para geração d
     pip install pandas
     ```
 ## Diagrama de Casos de Uso
-<img src="https://github.com/MarcosAndre5/geradorFolhaPonto/blob/main/imagens/casoDeUso_folhaPontos.jpeg" width="350">
+<img src="https://github.com/MarcosAndre5/geradorFolhaPonto/blob/main/imagens/casoDeUso_folhaPontos.jpeg" width="500">
 
 ## Imagens
 ### Tela Inícial
